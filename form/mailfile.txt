@@ -1,0 +1,10 @@
+Gegevens formulier:
+
+Naam: $in{naam} 
+Voornaam: $in{voornaam} 
+Adres: $in{adres}
+Postnummer: $in{postnummer}
+Gemeente: $in{gemeente} 
+Telefoon: $in{telefoon} 
+email: $in{MAILFROM}
+vraag: $in{vraag}
