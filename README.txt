@@ -32,4 +32,4 @@ Credits:
 		Responsive Tools (github.com/ajlkn/responsive-tools)
 
 
-netlify.com
+Hosted on: netlify.com
