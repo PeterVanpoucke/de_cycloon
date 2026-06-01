@@ -11,6 +11,17 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 		<link rel="stylesheet" href="assets/css/main.css" />
 		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+		<style>
+			.year-toolbar { display: flex; justify-content: flex-end; align-items: center; margin: 0 0 0; }
+			.year-toolbar .printYear {
+				margin: 0;
+				font-size: 0.45em;
+				height: 2.25em;
+				line-height: 2.25em;
+				padding: 0 1.25em;
+			}
+			@media print { .year-toolbar { display: none !important; } }
+		</style>
 	</head>
 	<body class="is-preload">
 
@@ -69,9 +80,21 @@
 									</table>
 								</div>
 								<hr/>
-								<iframe id="calendar1" src="2026.htm" style="width: 100%;height: 1000px; border: 2px solid #ccc;" title="Kalender 2026"></iframe>
+								<iframe id="calendar1" src="2026.htm" style="width: 100%;height: 1000px; border: 2px solid #ccc;" scrolling="no" title="Kalender 2026"></iframe>
+								<div class="year-toolbar">
+									<button type="button"
+										class="button small icon solid fa-print printYear"
+										data-target="calendar1"
+										title="Afdrukken / Print / Imprimer / Drucken">Print</button>
+								</div>
 								<hr/>
-								<iframe id="calendar2" src="2027.htm" style="width: 100%;height: 1000px; border: 2px solid #ccc;" title="Kalender 2027"></iframe>
+								<iframe id="calendar2" src="2027.htm" style="width: 100%;height: 1000px; border: 2px solid #ccc;" scrolling="no" title="Kalender 2027"></iframe>
+								<div class="year-toolbar">
+									<button type="button"
+										class="button small icon solid fa-print printYear"
+										data-target="calendar2"
+										title="Afdrukken / Print / Imprimer / Drucken">Print</button>
+								</div>
 
 								<footer class="major">
 									<hr/>
@@ -101,5 +124,85 @@
 			<script src="assets/js/breakpoints.min.js"></script>
 			<script src="assets/js/util.js"></script>
 			<script src="assets/js/main.js"></script>
+		<script>
+		(function () {
+		    var PRINT_CSS =
+		        'body { margin: 0; padding: 0; background-color: white;' +
+		        '       -webkit-print-color-adjust: exact; print-color-adjust: exact; }' +
+		        'div.WordSection1 { page-break-inside: avoid; page-break-after: avoid; }' +
+		        'table.Standaardtabel, table, tr, p { page-break-inside: avoid; }' +
+		        '@page { size: A4; margin: 70.85pt 70.85pt 70.85pt 70.85pt; }';
+
+		    function injectPrintCss(doc) {
+		        if (!doc || !doc.head) return;
+		        if (doc.getElementById('parentPrintCss')) return;
+		        var s = doc.createElement('style');
+		        s.id = 'parentPrintCss';
+		        s.setAttribute('media', 'print');
+		        s.appendChild(doc.createTextNode(PRINT_CSS));
+		        doc.head.appendChild(s);
+		    }
+
+		    function setupIframe(iframe) {
+		        var doc;
+		        try {
+		            doc = iframe.contentDocument || iframe.contentWindow.document;
+		        } catch (e) {
+		            iframe.style.height = '1000px';
+		            return;
+		        }
+		        if (!doc) { iframe.style.height = '1000px'; return; }
+
+		        iframe.style.height = (doc.documentElement.scrollHeight + 20) + 'px';
+		        injectPrintCss(doc);
+		    }
+
+		    function prepareIframe(iframeId) {
+		        var iframe = document.getElementById(iframeId);
+		        if (!iframe) return;
+
+		        iframe.addEventListener('load', function () { setupIframe(iframe); });
+
+		        var alreadyLoaded = false;
+		        try {
+		            var d = iframe.contentDocument || iframe.contentWindow.document;
+		            alreadyLoaded = !!(d && d.readyState === 'complete');
+		        } catch (e) { /* cross-origin or not ready */ }
+		        if (alreadyLoaded) setupIframe(iframe);
+		    }
+
+		    function openInNewTab(src) {
+		        // No window-features string -> modern browsers open a new tab,
+		        // not a popup window.
+		        var w = window.open(src, '_blank');
+		        if (!w) {
+		            alert('Pop-up geblokkeerd / Pop-up blocked / Pop-up bloqu\u00e9e / Pop-up blockiert');
+		            return;
+		        }
+		        try { w.focus(); } catch (e) {}
+		    }
+
+		    function wirePrintButtons() {
+		        var buttons = document.querySelectorAll('.printYear');
+		        for (var i = 0; i < buttons.length; i++) {
+		            (function (btn) {
+		                btn.addEventListener('click', function () {
+		                    var iframe = document.getElementById(btn.getAttribute('data-target'));
+		                    if (!iframe) return;
+		                    var src = iframe.getAttribute('src');
+		                    if (!src) return;
+		                    openInNewTab(src);
+		                });
+		            })(buttons[i]);
+		        }
+		    }
+
+		    window.addEventListener('load', function () {
+		        prepareIframe('calendar1');
+		        prepareIframe('calendar2');
+		        wirePrintButtons();
+		    });
+		})();
+		</script>
 </body>
 </html>
